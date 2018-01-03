@@ -1,9 +1,12 @@
 import speech_recognition as sr
+from SpeechService import SpeechService
 
 r = sr.Recognizer()
 m = sr.Microphone()
+speechSrv = SpeechService()
 # Dict of all phrases in memory
 phrases = {}
+deleteLoop = False
 
 try:
     print("A moment of silence, please...")
@@ -24,14 +27,31 @@ try:
             else:  # this version of Python uses unicode for strings (Python 3+)
                 print("You said {}".format(value))
 
-            # Store spoken phrases in memory and count times spoken
-            count = phrases.get(value)
-            print (count)
-            if count == None:
-                phrases.update({value:1})
+            # If delete that is said then enter in loop for deleting phrases
+            if value == "delete that s***":
+                deleteLoop = True
             else:
-                count += 1
-                phrases.update({value:count})
+                deleteLoop = False
+
+            if deleteLoop == False:
+                # Store spoken phrases in memory and count times spoken
+                count = phrases.get(value)
+                print (count)
+                if count == None:
+                    # Check to see if any phrases are close
+                    speechSrv.isPhraseSimilar()
+                        # If close highlight that this phrase will
+                        # change if said again and spoken exactly the same
+                        # as the change
+
+                        # Else just update the close phrase
+                    # If spoken the first time then add to phrases
+                    phrases.update({value:1})
+                else:
+                    count += 1
+                    phrases.update({value:count})
+            else:
+                speechSrv.deletePhrase()
 
             print(phrases)
         except sr.UnknownValueError:
